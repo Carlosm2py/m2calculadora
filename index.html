@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora Urbana - M2 Inmobiliaria</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 700px; margin: auto; background: #f5f5f5; }
+    h1 { text-align: center; color: #2c3e50; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    input, select { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; }
+    .result { background: white; padding: 15px; border-radius: 8px; margin-top: 20px; box-shadow: 0 0 10px #ccc; }
+    .result p { margin: 8px 0; }
+    button { margin-top: 15px; padding: 10px 15px; background-color: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; }
+    .whatsapp { position: fixed; bottom: 20px; right: 20px; background-color: #25D366; color: white; padding: 12px 16px; border-radius: 50px; text-decoration: none; font-size: 20px; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+    img.logo { max-width: 180px; display: block; margin: 10px auto 20px; }
+  </style>
+</head>
+<body>
+
+<img src='0001.jpg' class='logo' alt='M2 Logo' />
+
+<h1>Calculadora Urbana - M2 Inmobiliaria</h1>
+
+<label>Barrio o Zona:</label>
+<input type="text" id="barrio" placeholder="Ej: Las Mercedes" />
+
+<label>Superficie del terreno (m²):</label>
+<input type="number" id="superficie" placeholder="Ej: 1000" />
+
+<label>Plan Regulador:</label>
+<select id="plan">
+  <option value="AR1A" data-coef="1.5" data-ocup="60" data-incentivo="10">AR1A</option>
+  <option value="AR1B" data-coef="1.5" data-ocup="60" data-incentivo="10">AR1B</option>
+  <option value="AR2A" data-coef="2.4" data-ocup="60" data-incentivo="15">AR2A</option>
+  <option value="AR2B" data-coef="3.25" data-ocup="65" data-incentivo="20">AR2B</option>
+  <option value="AR3A" data-coef="3.25" data-ocup="65" data-incentivo="20">AR3A</option>
+  <option value="AR3B" data-coef="5.25" data-ocup="75" data-incentivo="20">AR3B</option>
+  <option value="FM1A" data-coef="3" data-ocup="70" data-incentivo="0">FM1A</option>
+  <option value="FM1B" data-coef="5" data-ocup="70" data-incentivo="0">FM1B</option>
+  <option value="FM2" data-coef="5" data-ocup="75" data-incentivo="0">FM2</option>
+  <option value="FM3" data-coef="8" data-ocup="75" data-incentivo="0">FM3</option>
+  <option value="EH>=600" data-coef="10.5" data-ocup="60" data-incentivo="0">EH ≥ 600 m²</option>
+  <option value="EH<600" data-coef="5.85" data-ocup="60" data-incentivo="0">EH < 600 m²</option>
+  <option value="EVILLA" data-coef="3.25" data-ocup="75" data-incentivo="0">Eje Villa Morra</option>
+  <option value="AT" data-coef="10" data-ocup="60" data-incentivo="0">Área de Transición (AT)</option>
+  <option value="AI1" data-coef="5" data-ocup="75" data-incentivo="0">AI1</option>
+  <option value="AI2" data-coef="5" data-ocup="75" data-incentivo="0">AI2</option>
+  <option value="AI3" data-coef="5" data-ocup="75" data-incentivo="0">AI3</option>
+</select>
+
+<label><input type="checkbox" id="avenida" /> ¿Está sobre avenida?</label>
+
+<div class="result">
+  <p><strong>Coeficiente:</strong> <span id="coef">-</span></p>
+  <p><strong>Tasa de ocupación:</strong> <span id="ocup">-</span>%</p>
+  <p><strong>Incentivo:</strong> <span id="incentivo">-</span>%</p>
+  <p><strong>M² construibles sin incentivo:</strong> <span id="m2sin">-</span> m²</p>
+  <p><strong>M² construibles con incentivo:</strong> <span id="m2con">-</span> m²</p>
+  <p><strong>M² por piso estimado:</strong> <span id="m2piso">-</span> m²</p>
+  <p><strong>Pisos máximos posibles:</strong> <span id="pisos">-</span></p>
+</div>
+
+<button onclick="window.print()">📄 Exportar a PDF (Imprimir)</button>
+
+<a href="https://wa.me/595981555578" class="whatsapp" target="_blank">💬</a>
+
+<script>
+  const supInput = document.getElementById("superficie");
+  const planSelect = document.getElementById("plan");
+  const avenida = document.getElementById("avenida");
+
+  function calcular() {
+    const sup = parseFloat(supInput.value);
+    let coef = parseFloat(planSelect.options[planSelect.selectedIndex].dataset.coef);
+    const ocup = parseFloat(planSelect.options[planSelect.selectedIndex].dataset.ocup);
+    const incentivo = parseFloat(planSelect.options[planSelect.selectedIndex].dataset.incentivo);
+    if (planSelect.value === "FM3" && avenida.checked) coef = 8.0;
+
+    if (!isNaN(sup)) {
+      const m2sin = sup * coef;
+      const m2con = m2sin * (1 + incentivo / 100);
+      const m2piso = sup * ocup / 100;
+      const pisos = m2con / m2piso;
+
+      document.getElementById("coef").innerText = coef.toFixed(2);
+      document.getElementById("ocup").innerText = ocup.toFixed(0);
+      document.getElementById("incentivo").innerText = incentivo.toFixed(0);
+      document.getElementById("m2sin").innerText = m2sin.toFixed(2);
+      document.getElementById("m2con").innerText = m2con.toFixed(2);
+      document.getElementById("m2piso").innerText = m2piso.toFixed(2);
+      document.getElementById("pisos").innerText = pisos.toFixed(1);
+    }
+  }
+
+  supInput.addEventListener("input", calcular);
+  planSelect.addEventListener("change", calcular);
+  avenida.addEventListener("change", calcular);
+</script>
+
+</body>
+</html>
